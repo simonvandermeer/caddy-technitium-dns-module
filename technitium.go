@@ -123,27 +123,24 @@ func (p *Provider) AppendRecords(ctx context.Context, zone string, records []lib
 	var appendedRecords []libdns.Record
 
 	for _, record := range records {
-		if record.Type != "TXT" {
+		var recordData = record.RR()
+		if recordData.Type != "TXT" {
 			continue // Only handle TXT records for ACME challenges
 		}
 
 		// Clean up the record name and zone
-		name := strings.TrimSuffix(record.Name, ".")
+		name := strings.TrimSuffix(recordData.Name, ".")
 		if !strings.HasSuffix(name, zone) {
 			name = name + "." + strings.TrimSuffix(zone, ".")
 		}
 
-		value := record.Value
-		if record.Type == "TXT" {
-			value = strings.Trim(value, `"`)
-		}
-		err := p.addRecord(name, value, int(time.Duration(p.TTL).Seconds()))
+		err := p.addRecord(name, recordData.Data, int(time.Duration(p.TTL).Seconds()))
 		if err != nil {
 			return nil, fmt.Errorf("failed to add TXT record for %s: %v", name, err)
 		}
 
 		appendedRecords = append(appendedRecords, record)
-		p.logger.Info("Added TXT record", zap.String("name", name), zap.String("value", value))
+		p.logger.Info("Added TXT record", zap.String("name", name), zap.String("value", recordData.Data))
 	}
 
 	return appendedRecords, nil
@@ -154,27 +151,24 @@ func (p *Provider) DeleteRecords(ctx context.Context, zone string, records []lib
 	var deletedRecords []libdns.Record
 
 	for _, record := range records {
-		if record.Type != "TXT" {
+		var recordData = record.RR()
+		if recordData.Type != "TXT" {
 			continue // Only handle TXT records for ACME challenges
 		}
 
 		// Clean up the record name and zone
-		name := strings.TrimSuffix(record.Name, ".")
+		name := strings.TrimSuffix(recordData.Name, ".")
 		if !strings.HasSuffix(name, zone) {
 			name = name + "." + strings.TrimSuffix(zone, ".")
 		}
 
-		value := record.Value
-		if record.Type == "TXT" {
-			value = strings.Trim(value, `"`)
-		}
-		err := p.deleteRecord(name, value)
+		err := p.deleteRecord(name, recordData.Data)
 		if err != nil {
 			return nil, fmt.Errorf("failed to delete TXT record for %s: %v", name, err)
 		}
 
 		deletedRecords = append(deletedRecords, record)
-		p.logger.Info("Deleted TXT record", zap.String("name", name), zap.String("value", value))
+		p.logger.Info("Deleted TXT record", zap.String("name", name), zap.String("value", recordData.Data))
 	}
 
 	return deletedRecords, nil
