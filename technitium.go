@@ -133,13 +133,17 @@ func (p *Provider) AppendRecords(ctx context.Context, zone string, records []lib
 			name = name + "." + strings.TrimSuffix(zone, ".")
 		}
 
-		err := p.addRecord(name, record.Value, int(time.Duration(p.TTL).Seconds()))
+		value := record.Value
+		if record.Type == "TXT" {
+			value = strings.Trim(value, `"`)
+		}
+		err := p.addRecord(name, value, int(time.Duration(p.TTL).Seconds()))
 		if err != nil {
 			return nil, fmt.Errorf("failed to add TXT record for %s: %v", name, err)
 		}
 
 		appendedRecords = append(appendedRecords, record)
-		p.logger.Info("Added TXT record", zap.String("name", name), zap.String("value", record.Value))
+		p.logger.Info("Added TXT record", zap.String("name", name), zap.String("value", value))
 	}
 
 	return appendedRecords, nil
@@ -160,13 +164,17 @@ func (p *Provider) DeleteRecords(ctx context.Context, zone string, records []lib
 			name = name + "." + strings.TrimSuffix(zone, ".")
 		}
 
-		err := p.deleteRecord(name, record.Value)
+		value := record.Value
+		if record.Type == "TXT" {
+			value = strings.Trim(value, `"`)
+		}
+		err := p.deleteRecord(name, value)
 		if err != nil {
 			return nil, fmt.Errorf("failed to delete TXT record for %s: %v", name, err)
 		}
 
 		deletedRecords = append(deletedRecords, record)
-		p.logger.Info("Deleted TXT record", zap.String("name", name), zap.String("value", record.Value))
+		p.logger.Info("Deleted TXT record", zap.String("name", name), zap.String("value", value))
 	}
 
 	return deletedRecords, nil
