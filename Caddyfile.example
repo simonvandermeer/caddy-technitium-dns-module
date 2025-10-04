@@ -1,0 +1,49 @@
+# Example Caddyfile using Technitium DNS provider
+{
+    # Global settings
+    email your-email@example.com
+
+    # Use Technitium for all DNS challenges
+    acme_dns technitium {
+        server_url {env.TECHNITIUM_SERVER_URL}
+        api_token {env.TECHNITIUM_API_TOKEN}
+        http_timeout 30s
+        ttl 120s
+    }
+}
+
+# Regular domain with automatic HTTPS
+example.com {
+    respond "Hello from example.com!"
+
+    # Optional: custom headers
+    header {
+        Server "Caddy with Technitium DNS"
+        -Server  # Remove default server header
+    }
+}
+
+# Wildcard certificate example
+*.dev.example.com, dev.example.com {
+    # Will automatically use the global DNS provider
+    respond "Wildcard certificate working for {host}!"
+}
+
+# Specific domain with different DNS settings
+api.example.com {
+    tls {
+        # Override global settings for this domain
+        dns technitium {
+            server_url https://primary-dns.example.com:5380
+            api_token {env.PRIMARY_DNS_TOKEN}
+        }
+    }
+
+    reverse_proxy localhost:8080
+}
+
+# Local development with internal certificates
+*.local.dev {
+    tls internal
+    respond "Internal certificate for {host}"
+}
