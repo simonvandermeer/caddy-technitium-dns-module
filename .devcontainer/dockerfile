@@ -1,0 +1,3 @@
+FROM mcr.microsoft.com/devcontainers/go
+
+RUN go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest

@@ -1,0 +1,7 @@
+{
+    "name": "Caddy Technitium DNS Module Dev Container",
+    "dockerComposeFile": "compose.yml",
+    "service": "app",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+    "postCreateCommand": "sudo mkdir -p /go/pkg && sudo chown -R vscode:vscode /go"
+}
