@@ -1,7 +1,7 @@
 # Caddy DNS Provider Module for Technitium
 
 > [!WARNING]  
-> This module was made using an LLM and I have **not** done a lot of testing. It works for my homelab but no guarantees it will work for your situation. Please report (or better yet, open PRs for) any issues.
+> This module was made using an LLM and I have **not** done a lot of testing. It works for my homelab but no guarantees it will work for your situation. Please report (or better yet, open PRs for) any issues. I'll try and keep an eye on any PRs and review/merge as best as I can.
 
 This package contains a DNS provider module for Caddy that integrates with Technitium DNS Server to solve ACME DNS-01 challenges automatically.
 
